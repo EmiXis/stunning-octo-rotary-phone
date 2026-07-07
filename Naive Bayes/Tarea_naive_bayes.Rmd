@@ -1,0 +1,56 @@
+---
+title: "Clasificacion con Naive Bayes en Iris"
+author: "Emiliano Narciso Peralta Barrientos"
+date: "2026-07-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# 1. CARGA DE LIBRERÍAS
+
+```{r carga-librerias}
+library(e1071)
+library(caret)
+```
+
+# 2. CARGA Y EXPLORACIÓN DE DATOS
+
+```{r exploracion}
+data(iris)
+print("--- Resumen del Conjunto de Datos ---")
+summary(iris)
+```
+
+# 3. DIVISIÓN DE DATOS (70% Entrenamiento, 30% Prueba)
+
+```{r division-datos}
+set.seed(123)
+indices <- createDataPartition(iris$Species, p = 0.7, list = FALSE)
+entrenamiento <- iris[indices, ]
+prueba        <- iris[-indices, ]
+```
+
+# 4. ENTRENAMIENTO DEL MODELO NAIVE BAYES
+
+```{r entrenamiento}
+modelo_nb <- naiveBayes(Species ~ ., data = entrenamiento)
+print("--- Resumen del Modelo Entrenado ---")
+print(modelo_nb)
+```
+
+# 5. PREDICCIONES
+
+```{r predicciones}
+predicciones <- predict(modelo_nb, newdata = prueba)
+```
+
+# 6. EVALUACIÓN (Matriz de Confusión)
+
+```{r evaluacion}
+matriz_res <- confusionMatrix(predicciones, prueba$Species)
+print("--- Matriz de Confusión y Métricas ---")
+print(matriz_res)
+```
