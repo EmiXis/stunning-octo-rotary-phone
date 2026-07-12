@@ -1,0 +1,69 @@
+---
+title: "actividadNBFCI"
+author: "dani"
+date: "2026-07-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+if(!require(e1071)) install.packages("e1071", dependencies=TRUE)
+if(!require(caret)) install.packages("caret", dependencies=TRUE)
+if(!require(knitr)) install.packages("knitr", dependencies=TRUE)
+library(e1071)
+library(caret)
+library(knitr)
+
+# Creación del dataset en R
+datos_estudiantes <- data.frame(
+  Est = 1:30,
+  TiempoEstudio = c('Alto', 'Medio', 'Bajo', 'Alto', 'Medio', 'Alto', 'Bajo', 'Medio', 'Alto', 'Bajo',
+                    'Bajo', 'Bajo', 'Alto', 'Bajo', 'Medio', 'Alto', 'Medio', 'Bajo', 'Medio', 'Bajo',
+                    'Alto', 'Bajo', 'Bajo', 'Medio', 'Bajo', 'Bajo', 'Medio', 'Medio', 'Alto', 'Medio'),
+  Asistencia = c('Alta', 'Media', 'Baja', 'Alta', 'Media', 'Alta', 'Baja', 'Alta', 'Media', 'Baja',
+                 'Media', 'Baja', 'Alta', 'Baja', 'Alta', 'Alta', 'Media', 'Baja', 'Media', 'Media',
+                 'Media', 'Baja', 'Baja', 'Alta', 'Baja', 'Media', 'Alta', 'Media', 'Media', 'Media'),
+  Participacion = c('Alta', 'Baja', 'Baja', 'Media', 'Media', 'Alta', 'Baja', 'Media', 'Alta', 'Media',
+                    'Baja', 'Media', 'Alta', 'Baja', 'Alta', 'Alta', 'Baja', 'Media', 'Baja', 'Media',
+                    'Media', 'Media', 'Media', 'Alta', 'Baja', 'Media', 'Alta', 'Media', 'Media', 'Alta'),
+  SituacionEcon = c('Buena', 'Mala', 'Mala', 'Buena', 'Buena', 'Buena', 'Mala', 'Buena', 'Buena', 'Mala',
+                    'Buena', 'Mala', 'Mala', 'Buena', 'Mala', 'Buena', 'Mala', 'Mala', 'Mala', 'Mala',
+                    'Mala', 'Mala', 'Mala', 'Mala', 'Buena', 'Buena', 'Mala', 'Buena', 'Mala', 'Buena'),
+  Rendimiento = c('Excelente', 'Regular', 'Deficiente', 'Bueno', 'Bueno', 'Excelente', 'Deficiente', 'Bueno', 'Excelente', 'Regular',
+                  'Deficiente', 'Deficiente', 'Excelente', 'Deficiente', 'Bueno', 'Excelente', 'Regular', 'Deficiente', 'Bueno', 'Regular',
+                  'Regular', 'Deficiente', 'Deficiente', 'Bueno', 'Deficiente', 'Regular', 'Bueno', 'Bueno', 'Excelente', 'Regular')
+)
+
+# Convertir variables de texto a factores (necesario para Naive Bayes)
+datos_estudiantes$TiempoEstudio <- factor(datos_estudiantes$TiempoEstudio, levels = c('Bajo', 'Medio', 'Alto'))
+datos_estudiantes$Asistencia <- factor(datos_estudiantes$Asistencia, levels = c('Baja', 'Media', 'Alta'))
+datos_estudiantes$Participacion <- factor(datos_estudiantes$Participacion, levels = c('Baja', 'Media', 'Alta'))
+datos_estudiantes$SituacionEcon <- factor(datos_estudiantes$SituacionEcon, levels = c('Mala', 'Buena'))
+datos_estudiantes$Rendimiento <- factor(datos_estudiantes$Rendimiento, levels = c('Deficiente', 'Regular', 'Bueno', 'Excelente'))
+
+kable(datos_estudiantes, caption = "Datos Tabulados de los Estudiantes FCI")
+
+set.seed(123) # Semilla para aleatoriedad reproducible
+
+# Índices para el entrenamiento (80%)
+indices_entrenamiento <- createDataPartition(datos_estudiantes$Rendimiento, p = 0.8, list = FALSE)
+
+# División de conjuntos
+entrenamiento <- datos_estudiantes[indices_entrenamiento, ]
+prueba        <- datos_estudiantes[-indices_entrenamiento, ]
+
+# Ajustar el modelo Naive Bayes
+modelo_nb <- naiveBayes(Rendimiento ~ TiempoEstudio + Asistencia + Participacion + SituacionEcon, data = entrenamiento)
+
+# Visualizar el modelo entrenado
+print(modelo_nb)
+
+# Realizar predicciones
+predicciones <- predict(modelo_nb, newdata = prueba)
+
+# Crear Matriz de Confusión
+matriz_confusion <- confusionMatrix(predicciones, prueba$Rendimiento)
+print(matriz_confusion)
+
+# Graficar la matriz de confusión de forma sencilla
+fourfoldplot(matriz_confusion$table, color = c("#CC6666", "#99CC99"), conf.level = 0, margin = 1, main = "Matriz de Confusión (Predicciones vs Real)")
