@@ -1,4 +1,4 @@
-# Proyecto Clasificación - Árboles de Decisión y Naive Bayes
+# Proyecto - Algoritmo ID3 Aplicado al Conjunto Votes
 
 Repositorio de aprendizaje automático, enfocado en algoritmos de clasificación aplicados al dataset Iris y un dataset de rendimiento académico (FCI).
 
@@ -20,5 +20,5 @@ Repositorio de aprendizaje automático, enfocado en algoritmos de clasificación
    - Archivo: `arboles/ID3.pdf`
 
 2. **Reporte en excel**
-   - Archivo: `arboles/Final.pdf`
+   - Archivo: `arboles/Final.xlsx`
 
